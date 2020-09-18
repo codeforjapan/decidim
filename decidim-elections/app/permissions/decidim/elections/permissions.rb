@@ -7,6 +7,8 @@ module Decidim
         # Anonymous users can only view elections
         toggle_allow(can_view?) if permission_action.scope == :public && permission_action.subject == :election && permission_action.action == :view
 
+        toggle_allow(can_answer_feedback?) if permission_action.scope == :public && permission_action.subject == :questionnaire && permission_action.action == :answer
+
         return permission_action unless user
 
         # Delegate the admin permission checks to the admin permissions class
@@ -41,6 +43,12 @@ module Decidim
 
       def authorized_to_vote?
         authorized?(:vote, resource: election)
+      end
+
+      def can_answer_feedback?
+        return unless user
+
+        authorized_to_vote? && !election.questionnaire.answered_by?(user)
       end
 
       def election
