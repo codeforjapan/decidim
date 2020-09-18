@@ -24,6 +24,11 @@ module Decidim
             when :publish
               allow_if_valid_and_not_started
             end
+          when :questionnaire
+            case permission_action.action
+            when :update
+              toggle_allow(feedback_form.present?)
+            end
           end
 
           permission_action
@@ -45,6 +50,10 @@ module Decidim
 
         def allow_if_valid_and_not_started
           toggle_allow(election && !election.started? && election.valid_questions?)
+        end
+
+        def feedback_form
+          @feedback_form ||= context.fetch(:questionnaire, nil)
         end
       end
     end

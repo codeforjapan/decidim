@@ -11,13 +11,15 @@ describe Decidim::Elections::Admin::Permissions do
       current_component: elections_component,
       election: election,
       question: question,
-      answer: answer
+      answer: answer,
+      questionnaire: questionnaire
     }
   end
   let(:elections_component) { create :elections_component }
   let(:election) { create :election, component: elections_component }
   let(:question) { nil }
   let(:answer) { nil }
+  let(:questionnaire) { election&.questionnaire }
   let(:permission_action) { Decidim::PermissionAction.new(action) }
 
   shared_examples "not allowed when election has started" do
@@ -188,6 +190,22 @@ describe Decidim::Elections::Admin::Permissions do
       it { is_expected.to eq true }
 
       it_behaves_like "not allowed when election has started"
+    end
+
+    context "when subject is a questionnaire" do
+      let(:action) do
+        { scope: :admin, action: :update, subject: :questionnaire }
+      end
+
+      context "when feedback form is present" do
+        it { is_expected.to eq true }
+      end
+
+      context "when feedback form is missing" do
+        let(:questionnaire) { nil }
+
+        it { is_expected.to eq false }
+      end
     end
   end
 end
