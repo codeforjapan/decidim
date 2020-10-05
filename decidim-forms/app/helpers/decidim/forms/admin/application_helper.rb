@@ -33,6 +33,17 @@ module Decidim
             truncate translated_attribute(title), length: options[:max_length], omission: options[:omission]
           end
         end
+
+        def edit_questionnaire_title
+          case questionnaire.questionnaire_for.class.name
+          when "Decidim::Templates::Template"
+            t(:title, scope: "decidim.forms.admin.questionnaires.form", questionnaire_for: translated_attribute(@template.name))
+          when "Decidim::Surveys::Survey"
+            t(:title, scope: "decidim.forms.admin.questionnaires.form", questionnaire_for: translated_attribute(current_component.name))
+          else
+            t(:title, scope: "decidim.forms.admin.questionnaires.form", questionnaire_for: translated_attribute(questionnaire_for.try(:title)))
+          end
+        end
       end
     end
   end
